@@ -3,8 +3,8 @@ package http
 import (
 	"boiler-plate-clean/internal/delivery/http/response"
 	"boiler-plate-clean/internal/model"
+	"boiler-plate-clean/pkg/exception"
 	"fmt"
-	"github.com/RumbiaID/pkg-library/app/pkg/exception"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"regexp"
@@ -125,6 +125,14 @@ func (h *Handler) BadRequestJSON(e *gin.Context, msg any, err ...any) {
 
 func (h *Handler) UnauthorizedJSON(e *gin.Context, msg any, err ...any) {
 	h.ErrorJSON(e, 401, msg, err)
+}
+
+func (h *Handler) QueryFloat64(e *gin.Context, key string) (float64, error) {
+	return strconv.ParseFloat(e.Query(key), 64)
+}
+
+func (h *Handler) QueryInt(e *gin.Context, key string) (int, error) {
+	return strconv.Atoi(e.Query(key))
 }
 
 func (h *Handler) ParamInt(e *gin.Context, key string) (int, error) {

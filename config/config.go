@@ -49,12 +49,13 @@ func (c Config) UseReplica() bool {
 }
 
 func InitAppConfig(validate *xvalidator.Validator) *Config {
+	viper.AddConfigPath("/app/config")
 	viper.SetConfigFile(".env")
 	viper.SetConfigType("env")
 	viper.AutomaticEnv()
 	if err := viper.ReadInConfig(); err != nil {
 		slog.Error(fmt.Sprintf("Failed to read config file: %s", err))
-		os.Exit(1)
+		//os.Exit(1)
 	}
 
 	viper.OnConfigChange(func(e fsnotify.Event) {
@@ -72,16 +73,16 @@ func InitAppConfig(validate *xvalidator.Validator) *Config {
 		}
 	}
 	c := Config{
-		AppEnvConfig:   AppConfigInit(),
-		PubSubConfig:   PubSubConfigInit(),
+		AppEnvConfig: AppConfigInit(),
+		//PubSubConfig:   PubSubConfigInit(),
 		DatabaseConfig: DatabaseConfigConfig(),
 	}
 
-	if c.UsesRedis() {
-		c.RedisConfig = RedisConfigInit()
-	} else if c.UsesKafka() {
-		c.KafkaConfig = KafkaConfigInit()
-	}
+	//if c.UsesRedis() {
+	//	c.RedisConfig = RedisConfigInit()
+	//} else if c.UsesKafka() {
+	//	c.KafkaConfig = KafkaConfigInit()
+	//}
 
 	if c.UseReplica() {
 		c.DatabaseReplicaConfig = DatabaseReplicaInit(c.DatabaseConfig)

@@ -10,6 +10,7 @@ require (
 	github.com/gin-contrib/cors v1.5.0
 	github.com/gin-gonic/gin v1.10.0
 	github.com/go-redis/redis/v8 v8.11.5
+	github.com/grpc-ecosystem/grpc-gateway/v2 v2.21.0
 	github.com/rabbitmq/amqp091-go v1.8.1
 	github.com/rakyll/statik v0.1.7
 	github.com/samber/slog-gin v1.13.3
@@ -19,6 +20,9 @@ require (
 	github.com/stretchr/testify v1.9.0
 	github.com/swaggo/files v1.0.1
 	github.com/swaggo/gin-swagger v1.6.0
+	google.golang.org/genproto/googleapis/api v0.0.0-20240725223205-93522f1f2a9f
+	google.golang.org/grpc v1.65.0
+	google.golang.org/protobuf v1.34.2
 	gorm.io/gorm v1.25.11
 )
 
@@ -101,7 +105,7 @@ require (
 	golang.org/x/sys v0.23.0 // indirect
 	golang.org/x/text v0.17.0 // indirect
 	golang.org/x/tools v0.24.0 // indirect
-	google.golang.org/protobuf v1.34.2 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20240725223205-93522f1f2a9f // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gorm.io/driver/mysql v1.5.7 // indirect

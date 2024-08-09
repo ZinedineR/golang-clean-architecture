@@ -1,0 +1,1270 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Wallet Finance Service",
+    "description": "Wallet financial plan",
+    "version": "v1"
+  },
+  "tags": [
+    {
+      "name": "proto.wallet_finance.v1.UserService"
+    },
+    {
+      "name": "proto.wallet_finance.v1.WalletService"
+    },
+    {
+      "name": "proto.wallet_finance.v1.TransactionService"
+    },
+    {
+      "name": "proto.wallet_finance.v1.CategoryTransactionService"
+    }
+  ],
+  "host": "localhost:8080",
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/api/v2/category": {
+      "get": {
+        "operationId": "FindCategoryTransactions",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/proto.wallet_finance.v1.FindCategoryTransactionsResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "orderBy",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "order",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "filter",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "proto.wallet_finance.v1.CategoryTransactionService"
+        ]
+      },
+      "post": {
+        "operationId": "CreateCategoryTransaction",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/proto.wallet_finance.v1.CreateCategoryTransactionResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/proto.wallet_finance.v1.CreateCategoryTransactionRequest"
+            }
+          }
+        ],
+        "tags": [
+          "proto.wallet_finance.v1.CategoryTransactionService"
+        ]
+      }
+    },
+    "/api/v2/category/{id}": {
+      "get": {
+        "operationId": "GetCategoryTransaction",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/proto.wallet_finance.v1.GetCategoryTransactionResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "tags": [
+          "proto.wallet_finance.v1.CategoryTransactionService"
+        ]
+      },
+      "delete": {
+        "operationId": "DeleteCategoryTransaction",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/proto.wallet_finance.v1.DeleteCategoryTransactionResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "tags": [
+          "proto.wallet_finance.v1.CategoryTransactionService"
+        ]
+      },
+      "put": {
+        "operationId": "UpdateCategoryTransaction",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/proto.wallet_finance.v1.UpdateCategoryTransactionResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/proto.wallet_finance.v1.CategoryTransactionService.UpdateCategoryTransactionBody"
+            }
+          }
+        ],
+        "tags": [
+          "proto.wallet_finance.v1.CategoryTransactionService"
+        ]
+      }
+    },
+    "/api/v2/transaction": {
+      "post": {
+        "operationId": "CreateTransaction",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/proto.wallet_finance.v1.CreateTransactionResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/proto.wallet_finance.v1.CreateTransactionRequest"
+            }
+          }
+        ],
+        "tags": [
+          "proto.wallet_finance.v1.TransactionService"
+        ]
+      }
+    },
+    "/api/v2/transaction/credit": {
+      "post": {
+        "operationId": "CreditTransaction",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/proto.wallet_finance.v1.CreditTransactionResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/proto.wallet_finance.v1.CreditTransactionRequest"
+            }
+          }
+        ],
+        "tags": [
+          "proto.wallet_finance.v1.TransactionService"
+        ]
+      }
+    },
+    "/api/v2/transaction/transfer": {
+      "post": {
+        "operationId": "TransferTransaction",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/proto.wallet_finance.v1.TransferTransactionResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/proto.wallet_finance.v1.TransferTransactionRequest"
+            }
+          }
+        ],
+        "tags": [
+          "proto.wallet_finance.v1.TransactionService"
+        ]
+      }
+    },
+    "/api/v2/transaction/{id}": {
+      "get": {
+        "operationId": "GetTransaction",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/proto.wallet_finance.v1.GetTransactionResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "tags": [
+          "proto.wallet_finance.v1.TransactionService"
+        ]
+      },
+      "delete": {
+        "operationId": "DeleteTransaction",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/proto.wallet_finance.v1.DeleteTransactionResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "tags": [
+          "proto.wallet_finance.v1.TransactionService"
+        ]
+      },
+      "put": {
+        "operationId": "UpdateTransaction",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/proto.wallet_finance.v1.UpdateTransactionResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/proto.wallet_finance.v1.TransactionService.UpdateTransactionBody"
+            }
+          }
+        ],
+        "tags": [
+          "proto.wallet_finance.v1.TransactionService"
+        ]
+      }
+    },
+    "/api/v2/user": {
+      "post": {
+        "operationId": "CreateUser",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/proto.wallet_finance.v1.CreateUserResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/proto.wallet_finance.v1.CreateUserRequest"
+            }
+          }
+        ],
+        "tags": [
+          "proto.wallet_finance.v1.UserService"
+        ]
+      }
+    },
+    "/api/v2/user/{id}": {
+      "get": {
+        "operationId": "DetailUser",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/proto.wallet_finance.v1.DetailUserResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "tags": [
+          "proto.wallet_finance.v1.UserService"
+        ]
+      },
+      "delete": {
+        "operationId": "DeleteUser",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/proto.wallet_finance.v1.DeleteUserResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "tags": [
+          "proto.wallet_finance.v1.UserService"
+        ]
+      },
+      "put": {
+        "operationId": "UpdateUser",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/proto.wallet_finance.v1.UpdateUserResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/proto.wallet_finance.v1.UserService.UpdateUserBody"
+            }
+          }
+        ],
+        "tags": [
+          "proto.wallet_finance.v1.UserService"
+        ]
+      }
+    },
+    "/api/v2/user/{id}/cashflow": {
+      "get": {
+        "operationId": "Cashflow",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/proto.wallet_finance.v1.CashflowResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "fromDate",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "toDate",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          }
+        ],
+        "tags": [
+          "proto.wallet_finance.v1.UserService"
+        ]
+      }
+    },
+    "/api/v2/wallet": {
+      "post": {
+        "operationId": "CreateWallet",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/proto.wallet_finance.v1.CreateWalletResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/proto.wallet_finance.v1.CreateWalletRequest"
+            }
+          }
+        ],
+        "tags": [
+          "proto.wallet_finance.v1.WalletService"
+        ]
+      }
+    },
+    "/api/v2/wallet/{id}": {
+      "get": {
+        "operationId": "GetWallet",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/proto.wallet_finance.v1.GetWalletResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "fromDate",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "toDate",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          }
+        ],
+        "tags": [
+          "proto.wallet_finance.v1.WalletService"
+        ]
+      },
+      "delete": {
+        "operationId": "DeleteWallet",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/proto.wallet_finance.v1.DeleteWalletResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "tags": [
+          "proto.wallet_finance.v1.WalletService"
+        ]
+      },
+      "put": {
+        "operationId": "UpdateWallet",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/proto.wallet_finance.v1.UpdateWalletResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/proto.wallet_finance.v1.WalletService.UpdateWalletBody"
+            }
+          }
+        ],
+        "tags": [
+          "proto.wallet_finance.v1.WalletService"
+        ]
+      }
+    },
+    "/api/v2/wallet/{id}/category/recap": {
+      "get": {
+        "operationId": "RecapCategory",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/proto.wallet_finance.v1.RecapCategoryResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "categoryId",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "fromDate",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "toDate",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          }
+        ],
+        "tags": [
+          "proto.wallet_finance.v1.WalletService"
+        ]
+      }
+    },
+    "/api/v2/wallet/{id}/transaction/last10": {
+      "get": {
+        "operationId": "GetLast10Transactions",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/proto.wallet_finance.v1.GetLast10TransactionsResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "tags": [
+          "proto.wallet_finance.v1.WalletService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "proto.wallet_finance.v1.CashflowResponse": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "email": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "wallets": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/proto.wallet_finance.v1.WalletDetail"
+          }
+        }
+      }
+    },
+    "proto.wallet_finance.v1.CategoryTransaction": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int32",
+          "title": "Go int to ProtoBuf int32"
+        },
+        "name": {
+          "type": "string",
+          "title": "Go string to ProtoBuf string (income, expense, transfer)"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "title": "Go *time.Time to ProtoBuf Timestamp"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "title": "Go *time.Time to ProtoBuf Timestamp"
+        }
+      }
+    },
+    "proto.wallet_finance.v1.CategoryTransactionService.UpdateCategoryTransactionBody": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "proto.wallet_finance.v1.CreateCategoryTransactionRequest": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "proto.wallet_finance.v1.CreateCategoryTransactionResponse": {
+      "type": "object",
+      "properties": {
+        "categoryTransaction": {
+          "$ref": "#/definitions/proto.wallet_finance.v1.CategoryTransaction"
+        },
+        "response": {
+          "$ref": "#/definitions/proto.wallet_finance.v1.MutationResponse"
+        }
+      }
+    },
+    "proto.wallet_finance.v1.CreateTransactionRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "amount": {
+          "type": "number",
+          "format": "double"
+        },
+        "description": {
+          "type": "string"
+        },
+        "walletId": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "categoryId": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
+    "proto.wallet_finance.v1.CreateTransactionResponse": {
+      "type": "object",
+      "properties": {
+        "transaction": {
+          "$ref": "#/definitions/proto.wallet_finance.v1.Transaction"
+        },
+        "response": {
+          "$ref": "#/definitions/proto.wallet_finance.v1.MutationResponse"
+        }
+      }
+    },
+    "proto.wallet_finance.v1.CreateUserRequest": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        }
+      }
+    },
+    "proto.wallet_finance.v1.CreateUserResponse": {
+      "type": "object",
+      "properties": {
+        "user": {
+          "$ref": "#/definitions/proto.wallet_finance.v1.Users"
+        },
+        "response": {
+          "$ref": "#/definitions/proto.wallet_finance.v1.MutationResponse"
+        }
+      }
+    },
+    "proto.wallet_finance.v1.CreateWalletRequest": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "userId": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
+    "proto.wallet_finance.v1.CreateWalletResponse": {
+      "type": "object",
+      "properties": {
+        "wallet": {
+          "$ref": "#/definitions/proto.wallet_finance.v1.Wallet"
+        },
+        "response": {
+          "$ref": "#/definitions/proto.wallet_finance.v1.MutationResponse"
+        }
+      }
+    },
+    "proto.wallet_finance.v1.CreditTransactionRequest": {
+      "type": "object",
+      "properties": {
+        "walletId": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "categoryId": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "amount": {
+          "type": "number",
+          "format": "double"
+        }
+      }
+    },
+    "proto.wallet_finance.v1.CreditTransactionResponse": {
+      "type": "object",
+      "properties": {
+        "response": {
+          "$ref": "#/definitions/proto.wallet_finance.v1.MutationResponse"
+        }
+      }
+    },
+    "proto.wallet_finance.v1.DeleteCategoryTransactionResponse": {
+      "type": "object",
+      "properties": {
+        "response": {
+          "$ref": "#/definitions/proto.wallet_finance.v1.MutationResponse"
+        }
+      }
+    },
+    "proto.wallet_finance.v1.DeleteTransactionResponse": {
+      "type": "object",
+      "properties": {
+        "response": {
+          "$ref": "#/definitions/proto.wallet_finance.v1.MutationResponse"
+        }
+      }
+    },
+    "proto.wallet_finance.v1.DeleteUserResponse": {
+      "type": "object",
+      "properties": {
+        "response": {
+          "$ref": "#/definitions/proto.wallet_finance.v1.MutationResponse"
+        }
+      }
+    },
+    "proto.wallet_finance.v1.DeleteWalletResponse": {
+      "type": "object",
+      "properties": {
+        "response": {
+          "$ref": "#/definitions/proto.wallet_finance.v1.MutationResponse"
+        }
+      }
+    },
+    "proto.wallet_finance.v1.DetailUserResponse": {
+      "type": "object",
+      "properties": {
+        "user": {
+          "$ref": "#/definitions/proto.wallet_finance.v1.Users"
+        }
+      }
+    },
+    "proto.wallet_finance.v1.FindCategoryTransactionsResponse": {
+      "type": "object",
+      "properties": {
+        "categoryTransactions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/proto.wallet_finance.v1.CategoryTransaction"
+          }
+        }
+      }
+    },
+    "proto.wallet_finance.v1.GetCategoryTransactionResponse": {
+      "type": "object",
+      "properties": {
+        "categoryTransaction": {
+          "$ref": "#/definitions/proto.wallet_finance.v1.CategoryTransaction"
+        }
+      }
+    },
+    "proto.wallet_finance.v1.GetLast10TransactionsResponse": {
+      "type": "object",
+      "properties": {
+        "wallet": {
+          "$ref": "#/definitions/proto.wallet_finance.v1.Wallet"
+        },
+        "transactions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/proto.wallet_finance.v1.Transaction"
+          }
+        }
+      }
+    },
+    "proto.wallet_finance.v1.GetTransactionResponse": {
+      "type": "object",
+      "properties": {
+        "transaction": {
+          "$ref": "#/definitions/proto.wallet_finance.v1.Transaction"
+        }
+      }
+    },
+    "proto.wallet_finance.v1.GetWalletResponse": {
+      "type": "object",
+      "properties": {
+        "wallet": {
+          "$ref": "#/definitions/proto.wallet_finance.v1.Wallet"
+        },
+        "transactions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/proto.wallet_finance.v1.Transaction"
+          }
+        }
+      }
+    },
+    "proto.wallet_finance.v1.MutationResponse": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        }
+      }
+    },
+    "proto.wallet_finance.v1.RecapCategoryResponse": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "userId": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "total": {
+          "type": "number",
+          "format": "double"
+        },
+        "categoryId": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "category": {
+          "$ref": "#/definitions/proto.wallet_finance.v1.CategoryTransaction"
+        },
+        "transactions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/proto.wallet_finance.v1.Transaction"
+          }
+        }
+      }
+    },
+    "proto.wallet_finance.v1.Transaction": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int32",
+          "title": "Go int to ProtoBuf int32"
+        },
+        "type": {
+          "type": "string",
+          "title": "Go string to ProtoBuf string (income, expense, transfer)"
+        },
+        "amount": {
+          "type": "number",
+          "format": "double",
+          "title": "Go float64 to ProtoBuf double"
+        },
+        "description": {
+          "type": "string",
+          "title": "Go string to ProtoBuf string"
+        },
+        "transactionTime": {
+          "type": "string",
+          "format": "date-time",
+          "title": "Go *time.Time to ProtoBuf Timestamp"
+        },
+        "walletId": {
+          "type": "integer",
+          "format": "int32",
+          "title": "Foreign key to Wallet"
+        },
+        "wallet": {
+          "title": "Go *entity.Wallet to ProtoBuf Wallet",
+          "allOf": [
+            {
+              "$ref": "#/definitions/proto.wallet_finance.v1.Wallet"
+            }
+          ]
+        },
+        "categoryId": {
+          "type": "integer",
+          "format": "int32",
+          "title": "Foreign key to CategoryTransaction"
+        },
+        "category": {
+          "title": "Go *entity.CategoryTransaction to ProtoBuf CategoryTransaction",
+          "allOf": [
+            {
+              "$ref": "#/definitions/proto.wallet_finance.v1.CategoryTransaction"
+            }
+          ]
+        }
+      }
+    },
+    "proto.wallet_finance.v1.TransactionService.UpdateTransactionBody": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "amount": {
+          "type": "number",
+          "format": "double"
+        },
+        "description": {
+          "type": "string"
+        },
+        "walletId": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "categoryId": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
+    "proto.wallet_finance.v1.TransferTransactionRequest": {
+      "type": "object",
+      "properties": {
+        "senderId": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "receiverId": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "amount": {
+          "type": "number",
+          "format": "double"
+        }
+      }
+    },
+    "proto.wallet_finance.v1.TransferTransactionResponse": {
+      "type": "object",
+      "properties": {
+        "response": {
+          "$ref": "#/definitions/proto.wallet_finance.v1.MutationResponse"
+        }
+      }
+    },
+    "proto.wallet_finance.v1.UpdateCategoryTransactionResponse": {
+      "type": "object",
+      "properties": {
+        "categoryTransaction": {
+          "$ref": "#/definitions/proto.wallet_finance.v1.CategoryTransaction"
+        },
+        "response": {
+          "$ref": "#/definitions/proto.wallet_finance.v1.MutationResponse"
+        }
+      }
+    },
+    "proto.wallet_finance.v1.UpdateTransactionResponse": {
+      "type": "object",
+      "properties": {
+        "transaction": {
+          "$ref": "#/definitions/proto.wallet_finance.v1.Transaction"
+        },
+        "response": {
+          "$ref": "#/definitions/proto.wallet_finance.v1.MutationResponse"
+        }
+      }
+    },
+    "proto.wallet_finance.v1.UpdateUserResponse": {
+      "type": "object",
+      "properties": {
+        "user": {
+          "$ref": "#/definitions/proto.wallet_finance.v1.Users"
+        },
+        "response": {
+          "$ref": "#/definitions/proto.wallet_finance.v1.MutationResponse"
+        }
+      }
+    },
+    "proto.wallet_finance.v1.UpdateWalletResponse": {
+      "type": "object",
+      "properties": {
+        "wallet": {
+          "$ref": "#/definitions/proto.wallet_finance.v1.Wallet"
+        },
+        "response": {
+          "$ref": "#/definitions/proto.wallet_finance.v1.MutationResponse"
+        }
+      }
+    },
+    "proto.wallet_finance.v1.UserService.UpdateUserBody": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        }
+      }
+    },
+    "proto.wallet_finance.v1.Users": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int32",
+          "title": "Go int to ProtoBuf int32"
+        },
+        "email": {
+          "type": "string",
+          "title": "Go string to ProtoBuf string"
+        },
+        "password": {
+          "type": "string",
+          "title": "Go string to ProtoBuf string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "title": "Go *time.Time to ProtoBuf Timestamp"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "title": "Go *time.Time to ProtoBuf Timestamp"
+        },
+        "wallets": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/proto.wallet_finance.v1.Wallet"
+          },
+          "title": "Go []entity.Wallet to ProtoBuf repeated Wallet"
+        }
+      }
+    },
+    "proto.wallet_finance.v1.Wallet": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int32",
+          "title": "Go int to ProtoBuf int32"
+        },
+        "name": {
+          "type": "string",
+          "title": "Go string to ProtoBuf string"
+        },
+        "balance": {
+          "type": "number",
+          "format": "double",
+          "title": "Go float64 to ProtoBuf double"
+        },
+        "userId": {
+          "type": "integer",
+          "format": "int32",
+          "title": "Foreign key to Users"
+        },
+        "user": {
+          "title": "Go *entity.Users to ProtoBuf Users",
+          "allOf": [
+            {
+              "$ref": "#/definitions/proto.wallet_finance.v1.Users"
+            }
+          ]
+        },
+        "lastTransaction": {
+          "type": "string",
+          "format": "date-time",
+          "title": "Go *time.Time to ProtoBuf Timestamp"
+        }
+      }
+    },
+    "proto.wallet_finance.v1.WalletDetail": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "name": {
+          "type": "string"
+        },
+        "totalIncome": {
+          "type": "number",
+          "format": "double"
+        },
+        "totalExpense": {
+          "type": "number",
+          "format": "double"
+        },
+        "walletTypeDetail": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/proto.wallet_finance.v1.WalletTypeDetail"
+          }
+        }
+      }
+    },
+    "proto.wallet_finance.v1.WalletService.UpdateWalletBody": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "userId": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
+    "proto.wallet_finance.v1.WalletTypeDetail": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "total": {
+          "type": "number",
+          "format": "double"
+        },
+        "transactions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/proto.wallet_finance.v1.Transaction"
+          }
+        }
+      }
+    }
+  }
+}

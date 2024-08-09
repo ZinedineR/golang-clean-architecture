@@ -8,6 +8,7 @@ import (
 	"log/slog"
 	"reflect"
 	"strings"
+	"time"
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -54,7 +55,94 @@ func (r *Repository[T]) Find(
 	return data, nil
 }
 
-func (r *Repository[T]) FindByID(ctx context.Context, tx *gorm.DB, id string) (*T, error) {
+func (r *Repository[T]) FindBetweenTime(
+	ctx context.Context, tx *gorm.DB, column string, from, to time.Time, order model.OrderParam,
+	filter model.FilterParams,
+) (*[]T, error) {
+	var data *[]T
+	query := tx.WithContext(ctx).Omit(clause.Associations)
+	query = query.Where(column+" >= ?", from).Where(column+" < ?", to)
+	query = pagination.Where(filter, query)
+	query = pagination.Order(order, query)
+	if err := query.Find(&data).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		slog.Error("failed to find all", err)
+		return nil, err
+	}
+	return data, nil
+}
+
+func (r *Repository[T]) FindByForeignKey(
+	ctx context.Context, tx *gorm.DB, column string, id int,
+) (*[]T, error) {
+	var data *[]T
+	query := tx.WithContext(ctx).Omit(clause.Associations).Where(column+" = ?", id)
+	if err := query.Find(&data).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		slog.Error("failed to find all", err)
+		return nil, err
+	}
+	return data, nil
+}
+
+func (r *Repository[T]) FindByForeignKeyAndBetweenTime(
+	ctx context.Context, tx *gorm.DB, column string, id int,
+	columnDate string, from, to time.Time,
+) (*[]T, error) {
+	var data *[]T
+	query := tx.WithContext(ctx).Omit(clause.Associations).Where(column+" = ?", id)
+	query = query.Where(columnDate+" >= ?", from).Where(columnDate+" < ?", to)
+	if err := query.Find(&data).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		slog.Error("failed to find all", err)
+		return nil, err
+	}
+	return data, nil
+}
+
+func (r *Repository[T]) FindAssociationByForeignKeyAndBetweenTime(
+	ctx context.Context, tx *gorm.DB, column string, id int,
+	columnDate string, from, to time.Time,
+) (*[]T, error) {
+	var data *[]T
+	query := tx.WithContext(ctx).Preload(clause.Associations).Where(column+" = ?", id)
+	query = query.Where(columnDate+" >= ?", from).Where(columnDate+" < ?", to)
+	if err := query.Find(&data).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		slog.Error("failed to find all", err)
+		return nil, err
+	}
+	return data, nil
+}
+
+func (r *Repository[T]) FindByForeignKeyAndBetweenTimeWithFilter(
+	ctx context.Context, tx *gorm.DB, column string, id int,
+	columnDate string, from, to time.Time,
+	columnFilter string, value string,
+) (*[]T, error) {
+	var data *[]T
+	query := tx.WithContext(ctx).Omit(clause.Associations).Where(column+" = ?", id)
+	query = query.Where(columnDate+" >= ?", from).Where(columnDate+" < ?", to)
+	query = query.Where(columnFilter+" = ?", value)
+	if err := query.Find(&data).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		slog.Error("failed to find all", err)
+		return nil, err
+	}
+	return data, nil
+}
+
+func (r *Repository[T]) FindByID(ctx context.Context, tx *gorm.DB, id int) (*T, error) {
 	var data T
 	if err := tx.WithContext(ctx).Preload(clause.Associations).Where("id = ?", id).First(&data).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -155,7 +243,7 @@ func (r *Repository[T]) UpdateTxWithAssociations(ctx context.Context, tx *gorm.D
 	return nil
 }
 
-func (r *Repository[T]) DeleteByIDTx(ctx context.Context, tx *gorm.DB, id string) error {
+func (r *Repository[T]) DeleteByIDTx(ctx context.Context, tx *gorm.DB, id int) error {
 	if err := tx.WithContext(ctx).Unscoped().Where("id = ?", id).Delete(new(T)).Error; err != nil {
 		slog.Error("failed to delete", err)
 		return err

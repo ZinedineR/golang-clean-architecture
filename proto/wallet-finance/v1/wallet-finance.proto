@@ -1,0 +1,444 @@
+syntax = "proto3";
+import "google/protobuf/timestamp.proto";
+import "google/api/annotations.proto";
+//import "protoc-gen-openapiv2/options/annotations.proto";
+
+option go_package = "boiler-plate-clean/proto/wallet-finance/v1;wallet_finance";
+package proto.wallet_finance.v1;
+
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+  info: {
+    title: "Wallet Finance Service",
+    version: "v1",
+    description: "Wallet financial plan"
+  },
+  host: "localhost:8080",
+};
+
+service UserService {
+  rpc CreateUser (CreateUserRequest) returns (CreateUserResponse) {
+    option (google.api.http) = {
+      post: "/api/v2/user"
+      body: "*"
+    };
+  }
+
+  rpc UpdateUser (UpdateUserRequest) returns (UpdateUserResponse) {
+    option (google.api.http) = {
+      put: "/api/v2/user/{id}"
+      body: "*"
+    };
+  }
+
+  rpc DetailUser (DetailUserRequest) returns (DetailUserResponse) {
+    option (google.api.http) = {
+      get: "/api/v2/user/{id}"
+    };
+  }
+
+  rpc DeleteUser (DeleteUserRequest) returns (DeleteUserResponse) {
+    option (google.api.http) = {
+      delete: "/api/v2/user/{id}"
+    };
+  }
+
+  rpc Cashflow (CashflowRequest) returns (CashflowResponse) {
+    option (google.api.http) = {
+      get: "/api/v2/user/{id}/cashflow"
+    };
+  }
+}
+service WalletService {
+  rpc CreateWallet (CreateWalletRequest) returns (CreateWalletResponse) {
+    option (google.api.http) = {
+      post: "/api/v2/wallet"
+      body: "*"
+    };
+  }
+
+  rpc UpdateWallet (UpdateWalletRequest) returns (UpdateWalletResponse) {
+    option (google.api.http) = {
+      put: "/api/v2/wallet/{id}"
+      body: "*"
+    };
+  }
+
+  rpc GetWallet (GetWalletRequest) returns (GetWalletResponse) {
+    option (google.api.http) = {
+      get: "/api/v2/wallet/{id}"
+    };
+  }
+
+  rpc GetLast10Transactions (GetLast10TransactionsRequest) returns (GetLast10TransactionsResponse) {
+    option (google.api.http) = {
+      get: "/api/v2/wallet/{id}/transaction/last10"
+    };
+  }
+
+  rpc RecapCategory (RecapCategoryRequest) returns (RecapCategoryResponse) {
+    option (google.api.http) = {
+      get: "/api/v2/wallet/{id}/category/recap"
+    };
+  }
+
+  rpc DeleteWallet (DeleteWalletRequest) returns (DeleteWalletResponse) {
+    option (google.api.http) = {
+      delete: "/api/v2/wallet/{id}"
+    };
+  }
+}
+
+service TransactionService {
+  rpc CreateTransaction (CreateTransactionRequest) returns (CreateTransactionResponse) {
+    option (google.api.http) = {
+      post: "/api/v2/transaction"
+      body: "*"
+    };
+  }
+
+  rpc UpdateTransaction (UpdateTransactionRequest) returns (UpdateTransactionResponse) {
+    option (google.api.http) = {
+      put: "/api/v2/transaction/{id}"
+      body: "*"
+    };
+  }
+
+  rpc GetTransaction (GetTransactionRequest) returns (GetTransactionResponse) {
+    option (google.api.http) = {
+      get: "/api/v2/transaction/{id}"
+    };
+  }
+
+  rpc CreditTransaction (CreditTransactionRequest) returns (CreditTransactionResponse) {
+    option (google.api.http) = {
+      post: "/api/v2/transaction/credit"
+      body: "*"
+    };
+  }
+
+  rpc TransferTransaction (TransferTransactionRequest) returns (TransferTransactionResponse) {
+    option (google.api.http) = {
+      post: "/api/v2/transaction/transfer"
+      body: "*"
+    };
+  }
+
+  rpc DeleteTransaction (DeleteTransactionRequest) returns (DeleteTransactionResponse) {
+    option (google.api.http) = {
+      delete: "/api/v2/transaction/{id}"
+    };
+  }
+}
+
+service CategoryTransactionService {
+  rpc CreateCategoryTransaction (CreateCategoryTransactionRequest) returns (CreateCategoryTransactionResponse) {
+    option (google.api.http) = {
+      post: "/api/v2/category"
+      body: "*"
+    };
+  }
+
+  rpc UpdateCategoryTransaction (UpdateCategoryTransactionRequest) returns (UpdateCategoryTransactionResponse) {
+    option (google.api.http) = {
+      put: "/api/v2/category/{id}"
+      body: "*"
+    };
+  }
+
+  rpc GetCategoryTransaction (GetCategoryTransactionRequest) returns (GetCategoryTransactionResponse) {
+    option (google.api.http) = {
+      get: "/api/v2/category/{id}"
+    };
+  }
+
+  rpc FindCategoryTransactions (FindCategoryTransactionsRequest) returns (FindCategoryTransactionsResponse) {
+    option (google.api.http) = {
+      get: "/api/v2/category"
+    };
+  }
+
+  rpc DeleteCategoryTransaction (DeleteCategoryTransactionRequest) returns (DeleteCategoryTransactionResponse) {
+    option (google.api.http) = {
+      delete: "/api/v2/category/{id}"
+    };
+  }
+}
+
+message Users {
+  int32 id = 1;                            // Go int to ProtoBuf int32
+  string email = 2;                        // Go string to ProtoBuf string
+  string password = 3;                     // Go string to ProtoBuf string
+  google.protobuf.Timestamp created_at = 4; // Go *time.Time to ProtoBuf Timestamp
+  google.protobuf.Timestamp updated_at = 5; // Go *time.Time to ProtoBuf Timestamp
+  repeated Wallet wallets = 6;             // Go []entity.Wallet to ProtoBuf repeated Wallet
+}
+
+message Wallet {
+  int32 id = 1;                            // Go int to ProtoBuf int32
+  string name = 2;                         // Go string to ProtoBuf string
+  double balance = 3;                      // Go float64 to ProtoBuf double
+  int32 user_id = 4;                       // Foreign key to Users
+  Users user = 5;                          // Go *entity.Users to ProtoBuf Users
+  google.protobuf.Timestamp last_transaction = 6; // Go *time.Time to ProtoBuf Timestamp
+}
+
+message Transaction {
+  int32 id = 1;                            // Go int to ProtoBuf int32
+  string type = 2;                         // Go string to ProtoBuf string (income, expense, transfer)
+  double amount = 3;                       // Go float64 to ProtoBuf double
+  string description = 4;                  // Go string to ProtoBuf string
+  google.protobuf.Timestamp transaction_time = 5; // Go *time.Time to ProtoBuf Timestamp
+  int32 wallet_id = 6;                     // Foreign key to Wallet
+  Wallet wallet = 7;                       // Go *entity.Wallet to ProtoBuf Wallet
+  int32 category_id = 8;                   // Foreign key to CategoryTransaction
+  CategoryTransaction category = 9;        // Go *entity.CategoryTransaction to ProtoBuf CategoryTransaction
+}
+
+message CategoryTransaction {
+  int32 id = 1;                            // Go int to ProtoBuf int32
+  string name = 2;                         // Go string to ProtoBuf string (income, expense, transfer)
+  google.protobuf.Timestamp created_at = 3; // Go *time.Time to ProtoBuf Timestamp
+  google.protobuf.Timestamp updated_at = 4; // Go *time.Time to ProtoBuf Timestamp
+}
+
+message CreateUserRequest {
+  string email = 1;
+  string password = 2;
+}
+
+message CreateUserResponse {
+  Users user = 1;
+  MutationResponse response = 2;
+}
+
+message UpdateUserRequest {
+  int32 id = 1;
+  string email = 2;
+  string password = 3;
+}
+
+message UpdateUserResponse {
+  Users user = 1;
+  MutationResponse response = 2;
+}
+
+message DetailUserRequest {
+  int32 id = 1;
+}
+
+message DetailUserResponse {
+  Users user = 1;
+}
+
+message DeleteUserRequest {
+  int32 id = 1;
+}
+
+message DeleteUserResponse {
+  MutationResponse response = 1;
+}
+
+message CashflowRequest {
+  int32 id = 1;
+  google.protobuf.Timestamp from_date = 2;
+  google.protobuf.Timestamp to_date = 3;
+}
+
+message CashflowResponse {
+  int32 id = 1;
+  string email = 2;
+  google.protobuf.Timestamp created_at = 3;
+  google.protobuf.Timestamp updated_at = 4;
+  repeated WalletDetail wallets = 5;
+}
+
+message WalletDetail {
+  int32 id = 1;
+  string name = 2;
+  double total_income = 3;
+  double total_expense = 4;
+  repeated WalletTypeDetail wallet_type_detail = 5;
+}
+
+message WalletTypeDetail {
+  string type = 1;
+  double total = 2;
+  repeated Transaction transactions = 3;
+}
+
+message MutationResponse {
+  string message = 1;
+}
+
+message CreateWalletRequest {
+  string name = 1;
+  int32 user_id = 2;
+}
+
+message CreateWalletResponse {
+  Wallet wallet = 1;
+  MutationResponse response = 2;
+}
+
+message UpdateWalletRequest {
+  int32 id = 1;
+  string name = 2;
+  int32 user_id = 3;
+}
+
+message UpdateWalletResponse {
+  Wallet wallet = 1;
+  MutationResponse response = 2;
+}
+
+message GetWalletRequest {
+  int32 id = 1;
+  google.protobuf.Timestamp from_date = 3;
+  google.protobuf.Timestamp to_date = 4;
+}
+
+message GetWalletResponse {
+  Wallet wallet = 1;
+  repeated Transaction transactions = 2;
+}
+
+message GetLast10TransactionsRequest {
+  int32 id = 1;
+}
+
+message GetLast10TransactionsResponse {
+  Wallet wallet = 1;
+  repeated Transaction transactions = 2;
+}
+
+message RecapCategoryRequest {
+  int32 id = 1;
+  int32 category_id = 2;
+  google.protobuf.Timestamp from_date = 3;
+  google.protobuf.Timestamp to_date = 4;
+}
+
+message RecapCategoryResponse {
+  int32 id = 1;
+  int32 user_id = 2;
+  double total = 3;
+  int32 category_id = 4;
+  CategoryTransaction category = 5;
+  repeated Transaction transactions = 6;
+}
+
+message DeleteWalletRequest {
+  int32 id = 1;
+}
+
+message DeleteWalletResponse {
+  MutationResponse response = 1;
+}
+
+message CreateTransactionRequest {
+  string type = 1;
+  double amount = 2;
+  string description = 3;
+  int32 wallet_id = 4;
+  int32 category_id = 5;
+}
+
+message CreateTransactionResponse {
+  Transaction transaction = 1;
+  MutationResponse response = 2;
+}
+
+message UpdateTransactionRequest {
+  int32 id = 1;
+  string type = 2;
+  double amount = 3;
+  string description = 4;
+  int32 wallet_id = 5;
+  int32 category_id = 6;
+}
+
+message UpdateTransactionResponse {
+  Transaction transaction = 1;
+  MutationResponse response = 2;
+}
+
+message GetTransactionRequest {
+  int32 id = 1;
+}
+
+message GetTransactionResponse {
+  Transaction transaction = 1;
+}
+
+message CreditTransactionRequest {
+  int32 wallet_id = 1;
+  int32 category_id = 2;
+  double amount = 3;
+}
+
+message CreditTransactionResponse {
+  MutationResponse response = 1;
+}
+
+message TransferTransactionRequest {
+  int32 sender_id = 1;
+  int32 receiver_id = 2;
+  double amount = 3;
+}
+
+message TransferTransactionResponse {
+  MutationResponse response = 1;
+}
+
+message DeleteTransactionRequest {
+  int32 id = 1;
+}
+
+message DeleteTransactionResponse {
+  MutationResponse response = 1;
+}
+
+message CreateCategoryTransactionRequest {
+  string name = 1;
+}
+
+message CreateCategoryTransactionResponse {
+  CategoryTransaction category_transaction = 1;
+  MutationResponse response = 2;
+}
+
+message UpdateCategoryTransactionRequest {
+  int32 id = 1;
+  string name = 2;
+}
+
+message UpdateCategoryTransactionResponse {
+  CategoryTransaction category_transaction = 1;
+  MutationResponse response = 2;
+}
+
+message GetCategoryTransactionRequest {
+  int32 id = 1;
+}
+
+message GetCategoryTransactionResponse {
+  CategoryTransaction category_transaction = 1;
+}
+
+message FindCategoryTransactionsRequest {
+  string order_by = 1;
+  string order = 2;
+  string filter = 3;
+}
+
+message FindCategoryTransactionsResponse {
+  repeated CategoryTransaction category_transactions = 1;
+}
+
+message DeleteCategoryTransactionRequest {
+  int32 id = 1;
+}
+
+message DeleteCategoryTransactionResponse {
+  MutationResponse response = 1;
+}

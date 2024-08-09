@@ -2,6 +2,7 @@ package main
 
 import (
 	"boiler-plate-clean/config"
+	"boiler-plate-clean/internal/delivery/grpc"
 	"boiler-plate-clean/internal/delivery/http"
 	"boiler-plate-clean/internal/delivery/http/route"
 	"boiler-plate-clean/internal/gateway/messaging"
@@ -67,29 +68,52 @@ func main() {
 	})
 
 	// repository
-	exampleRepository := repository.NewExampleSQLRepository()
+	userRepository := repository.NewUserRepository()
+	walletRepository := repository.NewWalletRepository()
+	categoryRepository := repository.NewCategoryTransactionRepository()
+	transactionRepository := repository.NewTransactionRepository()
 
 	// external api
 	//gotifySvcExternalAPI := externalapi.NewExampleExternalImpl(conf, httpClient)
 
 	// producer
-	if conf.UsesRedis() {
-		exampleProducer = messaging.NewExampleRedisProducerImpl(redisClient, conf.AppName()+"-email")
-	} else if conf.UsesKafka() {
-		exampleProducer = messaging.NewExampleKafkaProducerImpl(kafkaDialer, conf.KafkaConfig.KafkaTopicEmail)
-	}
+	//if conf.UsesRedis() {
+	//	exampleProducer = messaging.NewExampleRedisProducerImpl(redisClient, conf.AppName()+"-email")
+	//} else if conf.UsesKafka() {
+	//	exampleProducer = messaging.NewExampleKafkaProducerImpl(kafkaDialer, conf.KafkaConfig.KafkaTopicEmail)
+	//}
 
 	// service
-	exampleService := services.NewExampleService(sqlClientRepo.GetDB(), exampleRepository, validate)
+	userService := services.NewUserService(sqlClientRepo.GetDB(), userRepository, walletRepository, transactionRepository, validate)
+	walletService := services.NewWalletService(sqlClientRepo.GetDB(), walletRepository, userRepository, transactionRepository, categoryRepository, validate)
+	categoryService := services.NewCategoryTransactionService(sqlClientRepo.GetDB(), categoryRepository, validate)
+	transactionService := services.NewTransactionService(sqlClientRepo.GetDB(), transactionRepository, categoryRepository, userRepository, walletRepository, validate)
 	// Handler
-	exampleHandler := http.NewExampleHTTPHandler(exampleService)
+	userHandler := http.NewUserHTTPHandler(userService)
+	walletHandler := http.NewWalletHTTPHandler(walletService)
+	categoryHandler := http.NewCategoryTransactionHTTPHandler(categoryService)
+	transactionHandler := http.NewTransactionHTTPHandler(transactionService)
+
+	//GRPC
+	userGRPC := grpc.NewUserGRPCHandler(userService)
+	walletGRPC := grpc.NewWalletGRPCHandler(walletService)
+	categoryGRPC := grpc.NewCategoryTransactionGRPCHandler(categoryService)
+	transactionGRPC := grpc.NewTransactionGRPCHandler(transactionService)
+	serverGRPC := grpc.NewBaseGRPCHandler(categoryGRPC, transactionGRPC, userGRPC, walletGRPC)
 
 	router := route.Router{
-		App:            ginServer.App,
-		ExampleHandler: exampleHandler,
+		App:                ginServer.App,
+		UserHandler:        userHandler,
+		WalletHandler:      walletHandler,
+		CategoryHandler:    categoryHandler,
+		TransactionHandler: transactionHandler,
+		Config:             conf,
+		GRPCHandler:        serverGRPC,
 	}
-	router.Setup()
-	router.SwaggerRouter()
+	//router.Setup()
+	router.GRPCSetup()
+	//router.SwaggerRouter()
+
 	echan := make(chan error)
 	go func() {
 		echan <- ginServer.Start()
@@ -108,11 +132,11 @@ func main() {
 
 func initInfrastructure(config *config.Config) {
 	//initPostgreSQL()
-	if config.UsesKafka() {
-		kafkaDialer = initKafka(config)
-	} else if config.UsesRedis() {
-		redisClient = initRedis(config)
-	}
+	//if config.UsesKafka() {
+	//	kafkaDialer = initKafka(config)
+	//} else if config.UsesRedis() {
+	//	redisClient = initRedis(config)
+	//}
 
 	sqlClientRepo = initSQL(config)
 
