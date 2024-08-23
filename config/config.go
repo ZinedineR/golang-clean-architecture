@@ -43,7 +43,7 @@ func InitAppConfig(validate *xvalidator.Validator) *Config {
 	viper.AutomaticEnv()
 	if err := viper.ReadInConfig(); err != nil {
 		slog.Error(fmt.Sprintf("Failed to read config file: %s", err))
-		os.Exit(1)
+		//os.Exit(1)
 	}
 
 	viper.OnConfigChange(func(e fsnotify.Event) {
@@ -63,12 +63,11 @@ func InitAppConfig(validate *xvalidator.Validator) *Config {
 	c := Config{
 		AppEnvConfig:   AppConfigInit(),
 		DatabaseConfig: DatabaseConfigConfig(),
+		KafkaConfig:    KafkaConfigInit(),
 	}
 
-	c.KafkaConfig = KafkaConfigInit()
-
 	if c.UseReplica() {
-		c.DatabaseReplicaConfig = DatabaseReplicaInit(c.DatabaseConfig)
+		c.DatabaseReplicaConfig = DatabaseReplicaInit()
 	}
 
 	errs := validate.Struct(c)
@@ -88,7 +87,7 @@ func InitConsumerConfig(validate *xvalidator.Validator) *Config {
 	viper.AutomaticEnv()
 	if err := viper.ReadInConfig(); err != nil {
 		slog.Error(fmt.Sprintf("Failed to read config file: %s", err))
-		os.Exit(1)
+		//os.Exit(1)
 	}
 
 	viper.OnConfigChange(func(e fsnotify.Event) {
@@ -106,13 +105,10 @@ func InitConsumerConfig(validate *xvalidator.Validator) *Config {
 		}
 	}
 	c := Config{
-		AppEnvConfig: AppConfigInit(),
-	}
-
-	c.KafkaConfig = KafkaConfigInit()
-
-	if c.UseReplica() {
-		c.DatabaseReplicaConfig = DatabaseReplicaInit(c.DatabaseConfig)
+		AppEnvConfig:          AppConfigInit(),
+		DatabaseConfig:        DatabaseConfigConfig(),
+		DatabaseReplicaConfig: DatabaseReplicaInit(),
+		KafkaConfig:           KafkaConfigInit(),
 	}
 
 	errs := validate.Struct(c)

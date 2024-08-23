@@ -22,10 +22,9 @@ import (
 )
 
 var (
-	httpClient      httpclient.Client
-	sqlClientRepo   *database.Database
-	kafkaDialer     *kafkaserver.KafkaService
-	exampleProducer messaging.ExampleProducer
+	sqlRead      *database.Database
+	kafkaDialer  *kafkaserver.KafkaService
+	userProducer messaging.UserProducer
 )
 
 // @title           Pigeon
@@ -64,26 +63,22 @@ func main() {
 	})
 
 	// repository
-	exampleRepository := repository.NewExampleSQLRepository()
-
-	// external api
-	//gotifySvcExternalAPI := externalapi.NewExampleExternalImpl(conf, httpClient)
+	userRepository := repository.NewUserRepository()
 
 	// producer
 
-	exampleProducer = messaging.NewExampleKafkaProducerImpl(kafkaDialer, conf.KafkaConfig.KafkaTopicEmail)
+	userProducer = messaging.NewUserWriteProducerImpl(kafkaDialer, conf.KafkaConfig.KafkaTopic)
 
 	// service
-	exampleService := services.NewExampleService(sqlClientRepo.GetDB(), exampleRepository, validate)
+	userService := services.NewUserService(sqlRead.GetDB(), userRepository, validate)
 	// Handler
-	exampleHandler := http.NewExampleHTTPHandler(exampleService)
+	userHandler := http.NewUserHTTPHandler(userService, userProducer)
 
 	router := route.Router{
 		App:            ginServer.App,
-		ExampleHandler: exampleHandler,
+		ExampleHandler: userHandler,
 	}
 	router.Setup()
-	router.SwaggerRouter()
 	echan := make(chan error)
 	go func() {
 		echan <- ginServer.Start()
@@ -104,30 +99,19 @@ func initInfrastructure(config *config.Config) {
 	//initPostgreSQL()
 
 	kafkaDialer = initKafka(config)
+	sqlRead = initSQLRead(config)
 
-	sqlClientRepo = initSQL(config)
-
-	httpClient = initHttpclient()
 }
 
-func initSQL(conf *config.Config) *database.Database {
+func initSQLRead(conf *config.Config) *database.Database {
 	db := database.NewDatabase(conf.DatabaseConfig.Dbservice, &database.Config{
-		DbHost:   conf.DatabaseConfig.Dbhost,
-		DbUser:   conf.DatabaseConfig.Dbuser,
-		DbPass:   conf.DatabaseConfig.Dbpassword,
-		DbName:   conf.DatabaseConfig.Dbname,
-		DbPort:   strconv.Itoa(conf.DatabaseConfig.Dbport),
+		DbHost:   conf.DatabaseReplicaConfig.Dbreplicahost,
+		DbUser:   conf.DatabaseReplicaConfig.Dbreplicauser,
+		DbPass:   conf.DatabaseReplicaConfig.Dbreplicapassword,
+		DbName:   conf.DatabaseReplicaConfig.Dbreplicaname,
+		DbPort:   strconv.Itoa(conf.DatabaseReplicaConfig.Dbreplicaport),
 		DbPrefix: conf.DatabaseConfig.DbPrefix,
 	})
-	if conf.UseReplica() {
-		db.CqrsDB(conf.DatabaseConfig.Dbservice, &database.Config{
-			DbHost: conf.DatabaseReplicaConfig.Dbreplicahost,
-			DbUser: conf.DatabaseReplicaConfig.Dbreplicauser,
-			DbPass: conf.DatabaseReplicaConfig.Dbreplicapassword,
-			DbName: conf.DatabaseReplicaConfig.Dbreplicaname,
-			DbPort: strconv.Itoa(conf.DatabaseReplicaConfig.Dbreplicaport),
-		})
-	}
 	if conf.IsStaging() {
 		migration.AutoMigration(db)
 	}

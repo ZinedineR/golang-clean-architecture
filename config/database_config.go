@@ -35,9 +35,9 @@ func DatabaseConfigConfig() *DatabaseConfig {
 	}
 }
 
-func DatabaseReplicaInit(config *DatabaseConfig) *DatabaseReplicaConfig {
+func DatabaseReplicaInit() *DatabaseReplicaConfig {
 	return &DatabaseReplicaConfig{
-		Dbreplicaservice:  config.Dbservice,
+		Dbreplicaservice:  viper.GetString("DB_CONNECTION"),
 		Dbreplicahost:     viper.GetString("DB_REPLICA_HOST"),
 		Dbreplicaport:     viper.GetInt("DB_REPLICA_PORT"),
 		Dbreplicaname:     viper.GetString("DB_REPLICA_DATABASE"),

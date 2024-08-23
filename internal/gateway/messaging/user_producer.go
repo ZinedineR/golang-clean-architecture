@@ -5,7 +5,7 @@ import (
 	"context"
 )
 
-type ExampleProducer interface {
+type UserProducer interface {
 	GetTopic() string
-	Send(ctx context.Context, order ...*model.ExampleMessage) error
+	Send(ctx context.Context, order ...*model.UserMessage) error
 }

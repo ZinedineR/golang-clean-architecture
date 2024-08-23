@@ -1,0 +1,137 @@
+version: '3.8'
+
+networks:
+  service-conn:
+    driver: bridge
+
+services:
+  postgres-master-training:
+    image: postgres:14.12
+    container_name: postgres-master-training
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: cms
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./postgres_master:/var/lib/postgresql/data
+    networks:
+      - service-conn
+  postgres-replica-training:
+    image: postgres:14.12
+    container_name: postgres-replica-training
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: cms
+    ports:
+      - "5433:5432"
+    volumes:
+      - ./postgres_replica:/var/lib/postgresql/data
+    networks:
+      - service-conn
+  kafka-cqrs:
+    image: apache/kafka:latest
+    container_name: kafka-cqrs
+    ports:
+      - "9092:9092"
+    networks:
+      - service-conn
+  cqrs-kafka_worker:
+    build: .
+    command: [ "./cqrs-kafka-worker" ]
+    networks:
+      - service-conn
+    depends_on:
+      - postgres-master-training
+      - postgres-replica-training
+      - kafka-cqrs
+    environment:
+      APP_NAME: "notification-listener"
+      APP_ENV: "sit"
+      GIN_MODE: "release"
+      APP_DEBUG: "true"
+      APP_VERSION: "v2"
+      HTTP_PORT: "8080"
+
+      DB_CONNECTION: "postgres"
+      DB_HOST: "postgres-master-training"
+      DB_PORT: "5432"
+      DB_USERNAME: "postgres"
+      DB_PASSWORD: "postgres"
+      DB_DATABASE: "cms"
+      DB_PREFIX: "boiler_"
+
+      USE_REPLICA: "true"
+
+      DB_REPLICA_HOST: "postgres-replica-training"
+      DB_REPLICA_PORT: "5433"
+      DB_REPLICA_USERNAME: "postgres"
+      DB_REPLICA_PASSWORD: "postgres"
+      DB_REPLICA_DATABASE: "cms"
+
+      KAFKA_SECURITY_PROTOCOL: "PLAIN"
+      KAFKA_USERNAME: "none"
+      KAFKA_PASSWORD: "none"
+      KAFKA_BROKERS: "kafka-cqrs:9092"
+      KAFKA_GROUP_ID: "dev"
+      KAFKA_TOPIC: "user"
+
+      LOG_PATH: "./logs/"
+
+      ALLOW_ORIGINS: "*"
+      ALLOW_METHODS: "POST,GET,PUT,DELETE,OPTIONS"
+      ALLOW_HEADERS: "*"
+    restart: on-failure
+  cqrs-kafka-web:
+    build: .
+    command: ["./cqrs-kafka-web"]
+    ports:
+      - "8080:8080"
+    networks:
+      - service-conn
+    depends_on:
+      - postgres-master-training
+      - postgres-replica-training
+      - kafka-cqrs
+      - cqrs-kafka_worker
+    environment:
+      APP_NAME: "notification-listener"
+      APP_ENV: "sit"
+      GIN_MODE: "release"
+      APP_DEBUG: "true"
+      APP_VERSION: "v2"
+      HTTP_PORT: "8080"
+
+      DB_CONNECTION: "postgres"
+      DB_HOST: "postgres-master-training"
+      DB_PORT: "5432"
+      DB_USERNAME: "postgres"
+      DB_PASSWORD: "postgres"
+      DB_DATABASE: "cms"
+      DB_PREFIX: "boiler_"
+
+      USE_REPLICA: "true"
+
+      DB_REPLICA_HOST: "postgres-replica-training"
+      DB_REPLICA_PORT: "5433"
+      DB_REPLICA_USERNAME: "postgres"
+      DB_REPLICA_PASSWORD: "postgres"
+      DB_REPLICA_DATABASE: "cms"
+
+      KAFKA_SECURITY_PROTOCOL: "PLAIN"
+      KAFKA_USERNAME: "none"
+      KAFKA_PASSWORD: "none"
+      KAFKA_BROKERS: "localhost:9092"
+      KAFKA_GROUP_ID: "dev"
+      KAFKA_TOPIC: "user"
+
+      LOG_PATH: "./logs/"
+
+      ALLOW_ORIGINS: "*"
+      ALLOW_METHODS: "POST,GET,PUT,DELETE,OPTIONS"
+      ALLOW_HEADERS: "*"
+    restart: on-failure
+
+
