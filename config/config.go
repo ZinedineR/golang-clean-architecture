@@ -12,10 +12,7 @@ import (
 
 type Config struct {
 	AppEnvConfig          *AppConfig
-	PubSubConfig          *PubSubConfig
-	RedisConfig           *RedisConfig
 	KafkaConfig           *KafkaConfig
-	RabbiterConfig        *RabbiterConfig
 	DatabaseConfig        *DatabaseConfig
 	DatabaseReplicaConfig *DatabaseReplicaConfig
 }
@@ -34,14 +31,6 @@ func (c Config) IsProd() bool {
 
 func (c Config) IsDebug() bool {
 	return c.AppEnvConfig.AppDebug
-}
-
-func (c Config) UsesRedis() bool {
-	return c.PubSubConfig.PubSubService == "redis"
-}
-
-func (c Config) UsesKafka() bool {
-	return c.PubSubConfig.PubSubService == "kafka"
 }
 
 func (c Config) UseReplica() bool {
@@ -73,15 +62,10 @@ func InitAppConfig(validate *xvalidator.Validator) *Config {
 	}
 	c := Config{
 		AppEnvConfig:   AppConfigInit(),
-		PubSubConfig:   PubSubConfigInit(),
 		DatabaseConfig: DatabaseConfigConfig(),
 	}
 
-	if c.UsesRedis() {
-		c.RedisConfig = RedisConfigInit()
-	} else if c.UsesKafka() {
-		c.KafkaConfig = KafkaConfigInit()
-	}
+	c.KafkaConfig = KafkaConfigInit()
 
 	if c.UseReplica() {
 		c.DatabaseReplicaConfig = DatabaseReplicaInit(c.DatabaseConfig)
@@ -122,16 +106,10 @@ func InitConsumerConfig(validate *xvalidator.Validator) *Config {
 		}
 	}
 	c := Config{
-		AppEnvConfig:   AppConfigInit(),
-		PubSubConfig:   PubSubConfigInit(),
-		RabbiterConfig: RabbiterConfigInit(),
+		AppEnvConfig: AppConfigInit(),
 	}
 
-	if c.UsesRedis() {
-		c.RedisConfig = RedisConfigInit()
-	} else if c.UsesKafka() {
-		c.KafkaConfig = KafkaConfigInit()
-	}
+	c.KafkaConfig = KafkaConfigInit()
 
 	if c.UseReplica() {
 		c.DatabaseReplicaConfig = DatabaseReplicaInit(c.DatabaseConfig)

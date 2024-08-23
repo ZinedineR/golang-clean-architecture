@@ -13,9 +13,7 @@ import (
 	"github.com/RumbiaID/pkg-library/app/pkg/database"
 	"github.com/RumbiaID/pkg-library/app/pkg/httpclient"
 	"github.com/RumbiaID/pkg-library/app/pkg/logger"
-	"github.com/RumbiaID/pkg-library/app/pkg/redisser"
 	"github.com/RumbiaID/pkg-library/app/pkg/xvalidator"
-	"github.com/go-redis/redis/v8"
 	"log/slog"
 	"os"
 	"os/signal"
@@ -27,7 +25,6 @@ var (
 	httpClient      httpclient.Client
 	sqlClientRepo   *database.Database
 	kafkaDialer     *kafkaserver.KafkaService
-	redisClient     *redis.Client
 	exampleProducer messaging.ExampleProducer
 )
 
@@ -73,11 +70,8 @@ func main() {
 	//gotifySvcExternalAPI := externalapi.NewExampleExternalImpl(conf, httpClient)
 
 	// producer
-	if conf.UsesRedis() {
-		exampleProducer = messaging.NewExampleRedisProducerImpl(redisClient, conf.AppName()+"-email")
-	} else if conf.UsesKafka() {
-		exampleProducer = messaging.NewExampleKafkaProducerImpl(kafkaDialer, conf.KafkaConfig.KafkaTopicEmail)
-	}
+
+	exampleProducer = messaging.NewExampleKafkaProducerImpl(kafkaDialer, conf.KafkaConfig.KafkaTopicEmail)
 
 	// service
 	exampleService := services.NewExampleService(sqlClientRepo.GetDB(), exampleRepository, validate)
@@ -108,11 +102,8 @@ func main() {
 
 func initInfrastructure(config *config.Config) {
 	//initPostgreSQL()
-	if config.UsesKafka() {
-		kafkaDialer = initKafka(config)
-	} else if config.UsesRedis() {
-		redisClient = initRedis(config)
-	}
+
+	kafkaDialer = initKafka(config)
 
 	sqlClientRepo = initSQL(config)
 
@@ -157,14 +148,4 @@ func initKafka(config *config.Config) *kafkaserver.KafkaService {
 		Password:         config.KafkaConfig.KafkaPassword,
 	})
 	return kafkaDialer
-}
-
-func initRedis(config *config.Config) *redis.Client {
-	redisClient := redisser.NewRedis(&redisser.Config{
-		Redisdatabase: config.RedisConfig.Redisdatabase,
-		Redishost:     config.RedisConfig.Redishost,
-		Redisport:     config.RedisConfig.Redisport,
-		Redispassword: config.RedisConfig.Redispassword,
-	})
-	return redisClient
 }
