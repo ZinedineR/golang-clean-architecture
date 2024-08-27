@@ -14,6 +14,7 @@ import (
 type WalletGRPCHandler struct {
 	wallet_finance.UnimplementedWalletServiceServer
 	WalletService services.WalletService
+	GRPCParamHandler
 }
 
 func NewWalletGRPCHandler(service services.WalletService) *WalletGRPCHandler {
@@ -68,7 +69,11 @@ func (h *WalletGRPCHandler) UpdateWallet(
 func (h *WalletGRPCHandler) GetWallet(
 	ctx context.Context, in *wallet_finance.GetWalletRequest,
 ) (*wallet_finance.GetWalletResponse, error) {
-	wallet, err := h.WalletService.Detail(ctx, int(in.GetId()), in.GetFromDate().AsTime(), in.GetToDate().AsTime())
+	from, to, errParse := h.ParseDateParam(in.GetFromDate(), in.GetToDate())
+	if errParse != nil {
+		return nil, status.Error(codes.InvalidArgument, errParse.Error())
+	}
+	wallet, err := h.WalletService.DetailWalletTransaction(ctx, int(in.GetId()), from, to)
 	if err != nil {
 		return nil, status.Error(codes.Code(err.GetGrpcCode()), fmt.Sprint(err.Message))
 	}
@@ -104,7 +109,11 @@ func (h *WalletGRPCHandler) GetLast10Transactions(
 func (h *WalletGRPCHandler) RecapCategory(
 	ctx context.Context, in *wallet_finance.RecapCategoryRequest,
 ) (*wallet_finance.RecapCategoryResponse, error) {
-	walletRecap, err := h.WalletService.RecapCategory(ctx, int(in.GetId()), int(in.GetCategoryId()), in.GetFromDate().AsTime(), in.GetToDate().AsTime())
+	from, to, errParse := h.ParseDateParam(in.GetFromDate(), in.GetToDate())
+	if errParse != nil {
+		return nil, status.Error(codes.InvalidArgument, errParse.Error())
+	}
+	walletRecap, err := h.WalletService.RecapCategory(ctx, int(in.GetId()), int(in.GetCategoryId()), from, to)
 	if err != nil {
 		return nil, status.Error(codes.Code(err.GetGrpcCode()), fmt.Sprint(err.Message))
 	}

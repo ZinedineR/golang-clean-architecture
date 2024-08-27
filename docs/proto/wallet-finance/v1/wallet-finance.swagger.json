@@ -193,7 +193,7 @@
       }
     },
     "/api/v2/transaction/credit": {
-      "post": {
+      "put": {
         "operationId": "CreditTransaction",
         "responses": {
           "200": {
@@ -219,7 +219,7 @@
       }
     },
     "/api/v2/transaction/transfer": {
-      "post": {
+      "put": {
         "operationId": "TransferTransaction",
         "responses": {
           "200": {

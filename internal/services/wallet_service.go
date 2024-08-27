@@ -84,13 +84,6 @@ func (s *WalletServiceImpl) Update(
 		return exception.PermissionDenied("user does not exists")
 	}
 
-	duplicateCheck, err := s.walletRepository.FindByName(ctx, s.db, "name", model.Name)
-	if err != nil {
-		return exception.Internal("error finding wallet", err)
-	}
-	if duplicateCheck != nil && duplicateCheck.User.ID == userCheck.ID && duplicateCheck.ID != model.ID {
-		return exception.PermissionDenied("wallet already exists")
-	}
 	if err := s.walletRepository.UpdateTx(ctx, tx, model); err != nil {
 		return exception.Internal("err", err)
 	}
@@ -100,7 +93,7 @@ func (s *WalletServiceImpl) Update(
 	return nil
 }
 
-func (s *WalletServiceImpl) Detail(ctx context.Context, id int, from, to time.Time) (
+func (s *WalletServiceImpl) DetailWalletTransaction(ctx context.Context, id int, from, to time.Time) (
 	*model.WalletResponse, *exception.Exception,
 ) {
 	result, err := s.walletRepository.FindByID(ctx, s.db, id)
@@ -129,6 +122,18 @@ func (s *WalletServiceImpl) Detail(ctx context.Context, id int, from, to time.Ti
 	}
 
 	return walletResponse, nil
+}
+
+func (s *WalletServiceImpl) Detail(ctx context.Context, id int) (*entity.Wallet, *exception.Exception) {
+	result, err := s.walletRepository.FindByID(ctx, s.db, id)
+	if err != nil {
+		return nil, exception.Internal("err", err)
+	}
+	if result == nil {
+		return nil, exception.PermissionDenied("wallet not found")
+	}
+
+	return result, nil
 }
 
 func (s *WalletServiceImpl) Last10(ctx context.Context, id int) (

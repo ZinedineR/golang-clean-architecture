@@ -11,13 +11,9 @@ import (
 )
 
 type Config struct {
-	AppEnvConfig          *AppConfig
-	PubSubConfig          *PubSubConfig
-	RedisConfig           *RedisConfig
-	KafkaConfig           *KafkaConfig
-	RabbiterConfig        *RabbiterConfig
-	DatabaseConfig        *DatabaseConfig
-	DatabaseReplicaConfig *DatabaseReplicaConfig
+	AppEnvConfig   *AppConfig
+	KafkaConfig    *KafkaConfig
+	DatabaseConfig *DatabaseConfig
 }
 
 func (c Config) IsStaging() bool {
@@ -34,14 +30,6 @@ func (c Config) IsProd() bool {
 
 func (c Config) IsDebug() bool {
 	return c.AppEnvConfig.AppDebug
-}
-
-func (c Config) UsesRedis() bool {
-	return c.PubSubConfig.PubSubService == "redis"
-}
-
-func (c Config) UsesKafka() bool {
-	return c.PubSubConfig.PubSubService == "kafka"
 }
 
 func (c Config) UseReplica() bool {
@@ -69,13 +57,12 @@ func InitAppConfig(validate *xvalidator.Validator) *Config {
 		err := os.Setenv(strings.ToUpper(key), fmt.Sprintf("%v", value))
 		if err != nil {
 			slog.Error(fmt.Sprintf("Error setting environment variable %s: %v", envKey, err))
-			os.Exit(1)
 		}
 	}
 	c := Config{
-		AppEnvConfig: AppConfigInit(),
-		//PubSubConfig:   PubSubConfigInit(),
+		AppEnvConfig:   AppConfigInit(),
 		DatabaseConfig: DatabaseConfigConfig(),
+		KafkaConfig:    KafkaConfigInit(),
 	}
 
 	//if c.UsesRedis() {
@@ -83,10 +70,6 @@ func InitAppConfig(validate *xvalidator.Validator) *Config {
 	//} else if c.UsesKafka() {
 	//	c.KafkaConfig = KafkaConfigInit()
 	//}
-
-	if c.UseReplica() {
-		c.DatabaseReplicaConfig = DatabaseReplicaInit(c.DatabaseConfig)
-	}
 
 	errs := validate.Struct(c)
 	if errs != nil {
@@ -105,7 +88,6 @@ func InitConsumerConfig(validate *xvalidator.Validator) *Config {
 	viper.AutomaticEnv()
 	if err := viper.ReadInConfig(); err != nil {
 		slog.Error(fmt.Sprintf("Failed to read config file: %s", err))
-		os.Exit(1)
 	}
 
 	viper.OnConfigChange(func(e fsnotify.Event) {
@@ -124,18 +106,8 @@ func InitConsumerConfig(validate *xvalidator.Validator) *Config {
 	}
 	c := Config{
 		AppEnvConfig:   AppConfigInit(),
-		PubSubConfig:   PubSubConfigInit(),
-		RabbiterConfig: RabbiterConfigInit(),
-	}
-
-	if c.UsesRedis() {
-		c.RedisConfig = RedisConfigInit()
-	} else if c.UsesKafka() {
-		c.KafkaConfig = KafkaConfigInit()
-	}
-
-	if c.UseReplica() {
-		c.DatabaseReplicaConfig = DatabaseReplicaInit(c.DatabaseConfig)
+		DatabaseConfig: DatabaseConfigConfig(),
+		KafkaConfig:    KafkaConfigInit(),
 	}
 
 	errs := validate.Struct(c)

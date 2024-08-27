@@ -15,6 +15,7 @@ import (
 type UserGRPCHandler struct {
 	wallet_finance.UnimplementedUserServiceServer
 	UserService service.UserService
+	GRPCParamHandler
 }
 
 func NewUserGRPCHandler(service service.UserService) *UserGRPCHandler {
@@ -99,7 +100,11 @@ func (h *UserGRPCHandler) DeleteUser(
 func (h *UserGRPCHandler) Cashflow(
 	ctx context.Context, in *wallet_finance.CashflowRequest,
 ) (*wallet_finance.CashflowResponse, error) {
-	userWalletRecap, err := h.UserService.Cashflow(ctx, int(in.GetId()), in.GetFromDate().AsTime(), in.GetToDate().AsTime())
+	from, to, errParse := h.ParseDateParam(in.GetFromDate(), in.GetToDate())
+	if errParse != nil {
+		return nil, status.Error(codes.InvalidArgument, errParse.Error())
+	}
+	userWalletRecap, err := h.UserService.Cashflow(ctx, int(in.GetId()), from, to)
 	if err != nil {
 		return nil, status.Error(codes.Code(err.GetGrpcCode()), fmt.Sprint(err.Message))
 	}

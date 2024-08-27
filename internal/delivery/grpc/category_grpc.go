@@ -2,7 +2,6 @@ package grpc
 
 import (
 	"boiler-plate-clean/internal/entity"
-	"boiler-plate-clean/internal/model"
 	services "boiler-plate-clean/internal/services"
 	wallet_finance "boiler-plate-clean/proto/wallet-finance/v1"
 	"context"
@@ -15,6 +14,7 @@ import (
 type CategoryTransactionGRPCHandler struct {
 	wallet_finance.UnimplementedCategoryTransactionServiceServer
 	CategoryTransactionService services.CategoryTransactionService
+	GRPCParamHandler
 }
 
 func NewCategoryTransactionGRPCHandler(service services.CategoryTransactionService) *CategoryTransactionGRPCHandler {
@@ -82,14 +82,9 @@ func (h *CategoryTransactionGRPCHandler) GetCategoryTransaction(
 func (h *CategoryTransactionGRPCHandler) FindCategoryTransactions(
 	ctx context.Context, in *wallet_finance.FindCategoryTransactionsRequest,
 ) (*wallet_finance.FindCategoryTransactionsResponse, error) {
-	order := model.OrderParam{
-		OrderBy: in.GetOrderBy(),
-		Order:   in.GetOrder(),
-	}
-	filter := model.FilterParams{}
-	if in.GetFilter() != "" {
-		// You can parse the filter string and convert it to the appropriate FilterParams
-		// Example parsing logic should be here based on your specific filter syntax
+	order, filter, errParam := h.ParseFindParams(in.GetOrder(), in.GetFilter())
+	if errParam != nil {
+		return nil, status.Error(codes.InvalidArgument, errParam.Error())
 	}
 	categoryTransactions, err := h.CategoryTransactionService.Find(ctx, order, filter)
 	if err != nil {

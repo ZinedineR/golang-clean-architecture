@@ -2,6 +2,7 @@ package service
 
 import (
 	"boiler-plate-clean/internal/entity"
+	"boiler-plate-clean/internal/gateway/messaging"
 	"boiler-plate-clean/internal/repository"
 	"context"
 	//"boiler-plate-clean/pkg/exception"
@@ -17,6 +18,7 @@ type TransactionServiceImpl struct {
 	categoryRepository    repository.CategoryTransactionRepository
 	userRepository        repository.UserRepository
 	walletRepository      repository.WalletRepository
+	transactionProducer   messaging.TransactionProducer
 	validate              *xvalidator.Validator
 }
 
@@ -25,6 +27,7 @@ func NewTransactionService(
 	categoryRepository repository.CategoryTransactionRepository,
 	userRepository repository.UserRepository,
 	walletRepository repository.WalletRepository,
+	transactionProducer messaging.TransactionProducer,
 	validate *xvalidator.Validator,
 ) TransactionService {
 	return &TransactionServiceImpl{
@@ -33,6 +36,7 @@ func NewTransactionService(
 		categoryRepository:    categoryRepository,
 		userRepository:        userRepository,
 		walletRepository:      walletRepository,
+		transactionProducer:   transactionProducer,
 		validate:              validate,
 	}
 }
@@ -51,8 +55,19 @@ func (s *TransactionServiceImpl) Create(
 	if category == nil {
 		return exception.PermissionDenied("category does not exists")
 	}
-
+	wallet, err := s.walletRepository.FindByID(ctx, s.db, model.WalletId)
+	if err != nil {
+		return exception.Internal("failed getting wallet detail", err)
+	}
+	if wallet == nil {
+		return exception.NotFound("wallet detail not found")
+	}
+	model.Wallet = wallet
 	if err := s.transactionRepository.CreateTx(ctx, tx, model); err != nil {
+		return exception.Internal("err", err)
+	}
+
+	if err := s.transactionProducer.Send(ctx, model); err != nil {
 		return exception.Internal("err", err)
 	}
 
@@ -75,6 +90,9 @@ func (s *TransactionServiceImpl) Update(
 		return exception.PermissionDenied("category does not exists")
 	}
 	if err := s.transactionRepository.UpdateTx(ctx, tx, model); err != nil {
+		return exception.Internal("err", err)
+	}
+	if err := s.transactionProducer.Send(ctx, model); err != nil {
 		return exception.Internal("err", err)
 	}
 	if err := tx.Commit().Error; err != nil {
@@ -122,16 +140,20 @@ func (s *TransactionServiceImpl) Credit(
 		Amount:      amount,
 		Description: "Credit of " + strconv.FormatFloat(amount, 'f', -1, 64),
 		WalletId:    wallet.ID,
+		Wallet:      wallet,
 		CategoryId:  category.ID,
 	}
 	if err := s.transactionRepository.CreateTx(ctx, tx, userTransaction); err != nil {
 		return exception.Internal("failed creating transaction", err)
 	}
+
 	wallet.Increase(amount)
 	if err := s.walletRepository.UpdateTx(ctx, tx, wallet); err != nil {
 		return exception.Internal("failed updating wallet", err)
 	}
-
+	if err := s.transactionProducer.Send(ctx, userTransaction); err != nil {
+		return exception.Internal("err", err)
+	}
 	if err := tx.Commit().Error; err != nil {
 		return exception.Internal("commit transaction", err)
 	}
@@ -175,6 +197,7 @@ func (s *TransactionServiceImpl) Transfer(
 		Amount:      amount,
 		Description: "Transfer to: " + receiver.Name,
 		WalletId:    sender.ID,
+		Wallet:      sender,
 		CategoryId:  category.ID,
 	}
 	if err := s.transactionRepository.CreateTx(ctx, tx, senderTransaction); err != nil {
@@ -189,6 +212,7 @@ func (s *TransactionServiceImpl) Transfer(
 		Amount:      amount,
 		Description: "Transfer from: " + sender.Name,
 		WalletId:    receiver.ID,
+		Wallet:      receiver,
 		CategoryId:  category.ID,
 	}
 	if err := s.transactionRepository.CreateTx(ctx, tx, receiverTransaction); err != nil {
@@ -198,9 +222,14 @@ func (s *TransactionServiceImpl) Transfer(
 	if err := s.walletRepository.UpdateTx(ctx, tx, receiver); err != nil {
 		return exception.Internal("failed updating wallet", err)
 	}
-
 	if err := tx.Commit().Error; err != nil {
 		return exception.Internal("commit transaction", err)
+	}
+	if err := s.transactionProducer.Send(ctx, senderTransaction); err != nil {
+		return exception.Internal("err", err)
+	}
+	if err := s.transactionProducer.Send(ctx, receiverTransaction); err != nil {
+		return exception.Internal("err", err)
 	}
 	return nil
 }

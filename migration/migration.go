@@ -11,11 +11,11 @@ func AutoMigration(CpmDB *database.Database) {
 		&entity.Wallet{},
 		&entity.CategoryTransaction{},
 		&entity.Transaction{},
-		&entity.Example{})
+		&entity.Fraud{})
 
 	//category maker
 	var category *entity.CategoryTransaction
-	CpmDB.GetDB().Model(&entity.CategoryTransaction{}).Where("name = transfer").First(&category)
+	CpmDB.GetDB().Model(&entity.CategoryTransaction{}).Where("name = ?", "transfer").First(&category)
 	if category.Name == "" {
 		category.Name = "transfer"
 		if err := CpmDB.GetDB().Create(&category).Error; err != nil {

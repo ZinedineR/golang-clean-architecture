@@ -44,7 +44,7 @@ func (h WalletHTTPHandler) FindOne(ctx *gin.Context) {
 		return
 	}
 
-	result, errException := h.WalletService.Detail(ctx, idParam, fromDate, toDate)
+	result, errException := h.WalletService.DetailWalletTransaction(ctx, idParam, fromDate, toDate)
 	if errException != nil {
 		h.ExceptionJSON(ctx, errException)
 		return
