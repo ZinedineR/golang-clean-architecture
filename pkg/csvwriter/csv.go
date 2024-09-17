@@ -17,6 +17,7 @@ type CSVWriter[T any] struct {
 
 // NewCSVWriter creates a new CSVWriter instance, ensuring the directory exists, and initializes the CSV writer.
 func NewCSVWriter[T any](dir string, filename string) (*CSVWriter[T], error) {
+	var file *os.File
 	// Ensure the directory exists
 	err := os.MkdirAll(dir, os.ModePerm)
 	if err != nil {
@@ -25,11 +26,13 @@ func NewCSVWriter[T any](dir string, filename string) (*CSVWriter[T], error) {
 
 	// Create or open the CSV file
 	filePath := filepath.Join(dir, filename)
-	file, err := os.Create(filePath)
+	file, err = os.OpenFile(filePath, os.O_RDWR|os.O_CREATE|os.O_TRUNC, os.ModePerm)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create file: %w", err)
+		file, err = os.Create(filePath)
+		if err != nil {
+			return nil, fmt.Errorf("failed to create file: %w", err)
+		}
 	}
-
 	// Initialize CSV writer
 	writer := csv.NewWriter(file)
 
@@ -55,7 +58,6 @@ func (cw *CSVWriter[T]) WriteToCSV(data ...T) error {
 	if err := cw.Writer.Error(); err != nil {
 		return fmt.Errorf("failed to flush writer: %w", err)
 	}
-
 	return nil
 }
 

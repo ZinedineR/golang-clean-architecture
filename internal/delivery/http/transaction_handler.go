@@ -5,16 +5,19 @@ import (
 	"boiler-plate-clean/internal/entity"
 	service "boiler-plate-clean/internal/services"
 	"github.com/gin-gonic/gin"
+	"net/http"
 )
 
 type TransactionHTTPHandler struct {
 	Handler
 	TransactionService service.TransactionService
+	FileService        service.FileService
 }
 
-func NewTransactionHTTPHandler(example service.TransactionService) *TransactionHTTPHandler {
+func NewTransactionHTTPHandler(example service.TransactionService, file service.FileService) *TransactionHTTPHandler {
 	return &TransactionHTTPHandler{
 		TransactionService: example,
+		FileService:        file,
 	}
 }
 
@@ -130,4 +133,17 @@ func (h TransactionHTTPHandler) Delete(ctx *gin.Context) {
 	}
 
 	h.SuccessJSON(ctx)
+}
+
+func (h TransactionHTTPHandler) RetrieveDocument(c *gin.Context) {
+
+	document, exc := h.FileService.Download(c)
+	if exc != nil {
+		h.ExceptionJSON(c, exc)
+		return
+	}
+
+	mimeType := http.DetectContentType(document)
+	c.Header("Content-Description", "File Transfer")
+	c.Data(http.StatusOK, mimeType, document)
 }
