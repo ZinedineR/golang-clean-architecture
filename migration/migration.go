@@ -2,7 +2,7 @@ package migration
 
 import (
 	"boiler-plate-clean/internal/entity"
-	"github.com/RumbiaID/pkg-library/app/pkg/database"
+	"boiler-plate-clean/pkg/database"
 )
 
 func AutoMigration(CpmDB *database.Database) {

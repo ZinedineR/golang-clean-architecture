@@ -3,10 +3,10 @@ package main
 import (
 	"boiler-plate-clean/config"
 	"boiler-plate-clean/internal/delivery/messaging"
+	kafkaserver "boiler-plate-clean/pkg/broker/kafkaservice"
+	"boiler-plate-clean/pkg/logger"
+	"boiler-plate-clean/pkg/xvalidator"
 	"context"
-	kafkaserver "github.com/RumbiaID/pkg-library/app/pkg/broker/kafkaservice"
-	"github.com/RumbiaID/pkg-library/app/pkg/logger"
-	"github.com/RumbiaID/pkg-library/app/pkg/xvalidator"
 	"log/slog"
 	"os"
 	"os/signal"

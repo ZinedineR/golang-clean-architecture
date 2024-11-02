@@ -3,11 +3,10 @@ package service
 import (
 	"boiler-plate-clean/internal/entity"
 	"boiler-plate-clean/internal/repository"
+	"boiler-plate-clean/pkg/exception"
+	"boiler-plate-clean/pkg/xvalidator"
 	"context"
-	"github.com/RumbiaID/pkg-library/app/pkg/exception"
-	"github.com/RumbiaID/pkg-library/app/pkg/xvalidator"
 	"gorm.io/gorm"
-	"strconv"
 )
 
 type ExampleServiceImpl struct {
@@ -34,16 +33,16 @@ func (s *ExampleServiceImpl) CreateExample(
 	tx := s.db.Begin()
 	defer tx.Rollback()
 
-	txRead := s.db
+	//txRead := s.db
 
-	result, err := s.campaignRepo.FindByName(ctx, txRead, "year", strconv.Itoa(model.Year))
-	if err != nil {
-		return exception.Internal("err", err)
-	}
+	//result, err := s.campaignRepo.FindByName(ctx, txRead, "year", strconv.Itoa(model.Year))
+	//if err != nil {
+	//	return exception.Internal("err", err)
+	//}
 
-	if result != nil {
-		return exception.AlreadyExists("example already exists")
-	}
+	//if result != nil {
+	//	return exception.AlreadyExists("example already exists")
+	//}
 
 	if err := s.campaignRepo.CreateTx(ctx, tx, model); err != nil {
 		return exception.Internal("err", err)

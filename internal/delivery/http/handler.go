@@ -3,8 +3,8 @@ package http
 import (
 	"boiler-plate-clean/internal/delivery/http/response"
 	"boiler-plate-clean/internal/model"
+	"boiler-plate-clean/pkg/exception"
 	"fmt"
-	"github.com/RumbiaID/pkg-library/app/pkg/exception"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"regexp"

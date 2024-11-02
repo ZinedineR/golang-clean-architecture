@@ -1,8 +1,8 @@
 package config
 
 import (
+	"boiler-plate-clean/pkg/xvalidator"
 	"fmt"
-	"github.com/RumbiaID/pkg-library/app/pkg/xvalidator"
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/viper"
 	"log/slog"

@@ -3,8 +3,8 @@ package service
 import (
 	"boiler-plate-clean/internal/entity"
 	"boiler-plate-clean/internal/model"
+	"boiler-plate-clean/pkg/exception"
 	"context"
-	"github.com/RumbiaID/pkg-library/app/pkg/exception"
 )
 
 type ExampleService interface {
