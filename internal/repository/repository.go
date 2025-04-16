@@ -5,17 +5,13 @@ import (
 	"boiler-plate-clean/pkg/pagination"
 	"context"
 	"errors"
-	"log/slog"
-	"reflect"
-	"strings"
-
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
+	"log/slog"
 )
 
-type CommonQuery[T any] interface {
+type BaseRepository[T any] interface {
 	CreateTx(ctx context.Context, tx *gorm.DB, data *T) error
-	UpdateAssociationMany2ManyTx(tx *gorm.DB, data *T) error
 	UpdateTx(ctx context.Context, tx *gorm.DB, data *T) error
 	UpdateTxWithAssociations(ctx context.Context, tx *gorm.DB, data *T) error
 	DeleteByIDTx(ctx context.Context, tx *gorm.DB, id string) error
@@ -32,10 +28,24 @@ type CommonQuery[T any] interface {
 	) (*T, error)
 }
 
-type Repository[T any] struct {
+type RelationField struct {
+	Name string
+	Func func(*gorm.DB) *gorm.DB
 }
 
-func (r *Repository[T]) CreateTx(ctx context.Context, tx *gorm.DB, data *T) error {
+type BaseRepositoryImpl[T any] struct {
+	relationFields []RelationField
+}
+
+func NewBaseRepositoryImpl[T any](
+	relationFields []RelationField,
+) BaseRepository[T] {
+	return &BaseRepositoryImpl[T]{
+		relationFields: relationFields,
+	}
+}
+
+func (r *BaseRepositoryImpl[T]) CreateTx(ctx context.Context, tx *gorm.DB, data *T) error {
 	if err := tx.WithContext(ctx).Omit(clause.Associations).
 		Clauses(clause.OnConflict{
 			Columns:   []clause.Column{{Name: "id"}},
@@ -48,24 +58,20 @@ func (r *Repository[T]) CreateTx(ctx context.Context, tx *gorm.DB, data *T) erro
 	return nil
 }
 
-func (r *Repository[T]) UpdateAssociationMany2ManyTx(tx *gorm.DB, data *T) error {
-	val := reflect.ValueOf(data).Elem()
-	for i := 0; i < val.NumField(); i++ {
-		field := val.Field(i)
-		typeField := val.Type().Field(i)
-		tag := typeField.Tag.Get("gorm")
-
-		if strings.Contains(tag, "many2many") {
-			associationName := typeField.Name
-			if err := tx.Model(data).Association(associationName).Replace(field.Interface()); err != nil {
-				return err
-			}
-		}
+func (r *BaseRepositoryImpl[T]) CreateTxAssociation(ctx context.Context, tx *gorm.DB, data *T) error {
+	if err := tx.WithContext(ctx).
+		Clauses(clause.OnConflict{
+			Columns:   []clause.Column{{Name: "id"}},
+			UpdateAll: true,
+		}).
+		Create(data).Error; err != nil {
+		slog.Error("failed to create", err)
+		return err
 	}
 	return nil
 }
 
-func (r *Repository[T]) UpdateTx(ctx context.Context, tx *gorm.DB, data *T) error {
+func (r *BaseRepositoryImpl[T]) UpdateTx(ctx context.Context, tx *gorm.DB, data *T) error {
 	if err := tx.WithContext(ctx).Omit(clause.Associations).Model(data).Select("*").Updates(data).Error; err != nil {
 		slog.Error("failed to update", err)
 		return err
@@ -73,15 +79,15 @@ func (r *Repository[T]) UpdateTx(ctx context.Context, tx *gorm.DB, data *T) erro
 	return nil
 }
 
-func (r *Repository[T]) UpdateTxWithAssociations(ctx context.Context, tx *gorm.DB, data *T) error {
-	if err := tx.WithContext(ctx).Model(data).Select("*").Updates(data).Error; err != nil {
-		slog.Error("failed to update", err)
+func (r *BaseRepositoryImpl[T]) UpdateTxWithAssociations(ctx context.Context, tx *gorm.DB, data *T) error {
+	if err := tx.WithContext(ctx).Session(&gorm.Session{FullSaveAssociations: true}).Model(data).Select("*").Updates(data).Error; err != nil {
+		slog.Error("failed to update", slog.Any("error", err))
 		return err
 	}
 	return nil
 }
 
-func (r *Repository[T]) DeleteByIDTx(ctx context.Context, tx *gorm.DB, id string) error {
+func (r *BaseRepositoryImpl[T]) DeleteByIDTx(ctx context.Context, tx *gorm.DB, id string) error {
 	if err := tx.WithContext(ctx).Unscoped().Where("id = ?", id).Delete(new(T)).Error; err != nil {
 		slog.Error("failed to delete", err)
 		return err
@@ -89,7 +95,7 @@ func (r *Repository[T]) DeleteByIDTx(ctx context.Context, tx *gorm.DB, id string
 	return nil
 }
 
-func (r *Repository[T]) FindByPagination(
+func (r *BaseRepositoryImpl[T]) FindByPagination(
 	ctx context.Context, tx *gorm.DB, page model.PaginationParam, order model.OrderParam,
 	filter model.FilterParams,
 ) (*model.PaginationData[T], error) {
@@ -110,7 +116,7 @@ func (r *Repository[T]) FindByPagination(
 	}, nil
 }
 
-func (r *Repository[T]) Find(
+func (r *BaseRepositoryImpl[T]) Find(
 	ctx context.Context, tx *gorm.DB, order model.OrderParam, filter model.FilterParams,
 ) (*[]T, error) {
 	var data *[]T
@@ -127,9 +133,17 @@ func (r *Repository[T]) Find(
 	return data, nil
 }
 
-func (r *Repository[T]) FindByID(ctx context.Context, tx *gorm.DB, id string) (*T, error) {
+func (r *BaseRepositoryImpl[T]) FindByID(ctx context.Context, tx *gorm.DB, id string) (*T, error) {
 	var data T
-	if err := tx.WithContext(ctx).Preload(clause.Associations).Where("id = ?", id).First(&data).Error; err != nil {
+	if len(r.relationFields) > 0 {
+		tx = tx.WithContext(ctx)
+		for _, field := range r.relationFields {
+			tx = tx.Preload(field.Name, field.Func)
+		}
+	} else {
+		tx = tx.WithContext(ctx).Preload(clause.Associations)
+	}
+	if err := tx.Where("id = ?", id).First(&data).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
 		}
@@ -139,7 +153,7 @@ func (r *Repository[T]) FindByID(ctx context.Context, tx *gorm.DB, id string) (*
 	return &data, nil
 }
 
-func (r *Repository[T]) FindByColumn(
+func (r *BaseRepositoryImpl[T]) FindByColumn(
 	ctx context.Context, tx *gorm.DB, filter model.FilterParams, order model.OrderParam,
 ) (*T, error) {
 	var data T

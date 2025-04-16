@@ -6,5 +6,5 @@ import (
 
 type ExampleRepository interface {
 	// Example operations
-	CommonQuery[entity.Example]
+	BaseRepository[entity.Example]
 }

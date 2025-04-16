@@ -2,12 +2,24 @@ package repository
 
 import (
 	"boiler-plate-clean/internal/entity"
+	"gorm.io/gorm"
 )
 
 type ExampleSQLRepo struct {
-	Repository[entity.Example]
+	BaseRepository[entity.Example]
 }
 
 func NewExampleSQLRepository() ExampleRepository {
-	return &ExampleSQLRepo{}
+	relationField := []RelationField{
+		{
+			Name: "Example",
+			Func: func(db *gorm.DB) *gorm.DB {
+				return db
+			},
+		},
+	}
+	repo := NewBaseRepositoryImpl[entity.Example](relationField)
+	return &ExampleSQLRepo{
+		repo,
+	}
 }
